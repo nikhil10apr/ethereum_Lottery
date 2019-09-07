@@ -1,0 +1,15 @@
+.form-section {
+	width: 500px;
+	margin: 10px auto;
+	padding: 10px;
+	border: solid 1px #00f;
+	border-radius: 5px;
+	h1 {
+		text-align: center;
+	}
+	p {
+		input {
+			float: right;
+		}
+	}
+}

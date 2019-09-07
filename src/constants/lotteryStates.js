@@ -1,0 +1,1 @@
+export default ['NotStarted', 'Started', 'Finished'];
