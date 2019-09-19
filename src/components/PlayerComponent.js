@@ -2,10 +2,18 @@ import React, { Component, Fragment } from 'react';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import axios from 'axios';
 
+import Banner from './common/Banner'
+import RegisterForLottery from './RegisterForLottery'
+import Purchase from './Purchase'
+import ViewTickets from './ViewTickets'
+
+import {setPanelType} from '../redux/reducers/player';
+
 import Web3Service from '../ethereum/ethereum-app-utility';
 import '../styles/player.scss';
+import { connect } from 'react-redux';
 
-export default class HomeComponent extends Component {
+export class HomeComponent extends Component {
 	constructor() {
 		super();
 
@@ -20,6 +28,10 @@ export default class HomeComponent extends Component {
 
 		this.register = this.register.bind(this);
 		this.buyTicket = this.buyTicket.bind(this);
+
+		this.getPanelComponent = this.getPanelComponent.bind(this);
+
+		this.getDataForBanner = this.getDataForBanner.bind(this);
 	}
 
 	getLotteryStatus() {
@@ -78,19 +90,67 @@ export default class HomeComponent extends Component {
 		});
 	}
 
+	getDataForBanner(){
+		return;
+	}
+
+	getPanelComponent(banner) {
+		switch(banner) {
+			case 'register': 
+				return <RegisterForLottery register={this.register} lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} />;
+			case 'purchase': 
+				return <Purchase lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} buyTicket={this.buyTicket}/>;
+			case 'viewall': 
+				return <ViewTickets/>;
+			default: 
+				return <RegisterForLottery register={this.register} lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} />;
+		}
+	}
+
 	render() {
 		return <div className='container player-section'>
-			Hi, {this.userDetails.name}
-			{!this.state.lotteryOpen ? <h2>Lottery is not open yet</h2> : null}
-			{this.state.lotteryOpen && !this.state.isRegistered ? 
-				<button className='btn btn-success' onClick={this.register}>REGISTER FOR LOTTERY</button> : 
-				null
-			}
-			{this.state.lotteryOpen && this.state.isRegistered ? 
-				<button className='btn btn-success' onClick={this.buyTicket}>BUY TICKET</button> : 
-				null
-			}
-			
+			{/* <div className='container'> */}
+			{/* <div className='row'> */}
+				<div className='col-lg player-sidebar'>
+					<h2 className='sidebar-header d-flex justify-content-center'>
+						Welcome, {this.userDetails.name}
+					</h2>
+					<div>
+						<Banner 
+							label='Register for Lottery' 
+							isSelected={ this.props.selectedPanel==='register' } 
+							onClick={() => this.props.setPanel('register') }
+						/>
+					</div>
+					<div>
+						<Banner 
+							label='Purchase Ticket(s)' 
+							isSelected={ this.props.selectedPanel==='purchase' } 
+							onClick={() => this.props.setPanel('purchase') }
+						/>
+					</div>
+					<div>
+						<Banner 
+							label='View My Tickets' 
+							isSelected={this.props.selectedPanel==='viewall'} 
+							onClick={() => this.props.setPanel('viewall') }
+						/>
+					</div>
+				</div>
+				<div className='col-lg pt-5 mt-5 pl-5 player-panel'>
+					{this.getPanelComponent(this.props.selectedPanel)}
+				</div>
+			{/* </div></div>			 */}
 		</div>;
 	}
 }
+
+const mapStateToProps = (state) => ({
+	selectedPanel: state.player.panelType
+})
+
+const mapDispatchToProps = (dispatch) => ({
+	setPanel: (panel) => dispatch(setPanelType(panel))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeComponent)
