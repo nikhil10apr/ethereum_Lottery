@@ -12,7 +12,7 @@ export default class HomeComponent extends Component {
 					!this.props.lotteryOpen ? <h2>Lottery is not open yet</h2> : null}
 					{this.props.lotteryOpen && !this.props.isRegistered ? 
 						<button className='btn btn-success' onClick={this.props.register}>REGISTER FOR LOTTERY</button> : 
-						null
+						<h2>You are already registered for the lottery</h2>
 					}
             </div>
         );

@@ -1,0 +1,25 @@
+.purchase {
+	width: 500px;
+	margin: 10px 10%;
+	padding: 10px;
+
+	h1 {
+		text-align: center;
+	}
+	p {
+		input {
+			float: right;
+		}
+	}
+}
+
+.counter {
+	display: flex;
+    width: 100px;
+    border: solid 1px darkgreen;
+    border-radius: 5px;
+}
+
+.flex-1 {
+	flex: 1;
+}

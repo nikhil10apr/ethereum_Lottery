@@ -42,7 +42,7 @@ export class HomeComponent extends Component {
 		});
 	}
 
-	getUserDetails() {
+	async getUserDetails() {
 		this.userDetails = {
 			name: '',
 			phone: '',
@@ -59,6 +59,14 @@ export class HomeComponent extends Component {
 				isRegistered: resp
 			});
 		})
+		if(this.userDetails.account) {
+			try {
+				const accountBalance = await this.web3Service.web3.eth.getBalance(this.userDetails.account);
+				this.userDetails.balance = this.web3Service.web3.utils.fromWei(accountBalance);
+			} catch (err) {
+				console.log(err);
+			}
+		}		
 	}
 
 	register() {
@@ -80,14 +88,8 @@ export class HomeComponent extends Component {
 		});
 	}
 
-	buyTicket() {
-		this.web3Service.contract.methods.buyLotteryTickets().send({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000}, function(err, resp) {
-			if(err) {
-				console.log(err);
-				return false;
-			}
-			console.log(resp)
-		});
+	buyTicket(numberOfTickets) {
+		return this.web3Service.contract.methods.buyLotteryTickets().send({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000});
 	}
 
 	getDataForBanner(){
@@ -99,7 +101,7 @@ export class HomeComponent extends Component {
 			case 'register': 
 				return <RegisterForLottery register={this.register} lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} />;
 			case 'purchase': 
-				return <Purchase lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} buyTicket={this.buyTicket}/>;
+				return <Purchase lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} buyTicket={this.buyTicket} balance={this.userDetails.balance}/>;
 			case 'viewall': 
 				return <ViewTickets/>;
 			default: 
@@ -109,8 +111,6 @@ export class HomeComponent extends Component {
 
 	render() {
 		return <div className='container player-section'>
-			{/* <div className='container'> */}
-			{/* <div className='row'> */}
 				<div className='col-lg player-sidebar'>
 					<h2 className='sidebar-header d-flex justify-content-center'>
 						Welcome, {this.userDetails.name}
@@ -140,7 +140,6 @@ export class HomeComponent extends Component {
 				<div className='col-lg pt-5 mt-5 pl-5 player-panel'>
 					{this.getPanelComponent(this.props.selectedPanel)}
 				</div>
-			{/* </div></div>			 */}
 		</div>;
 	}
 }
