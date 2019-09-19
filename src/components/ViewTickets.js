@@ -7,9 +7,9 @@ export default class HomeComponent extends Component {
 
 	render() {
 		return (
-            <div>
-                <h2>Work In Progress...</h2>
-            </div>
-        );
+			<div>
+				<h2>Work In Progress...</h2>
+			</div>
+		);
 	}
 }

@@ -10,9 +10,9 @@ export const setPanelType = (panelType) => ({
 })
 
 export const reducer = (state = initialState, action) => {
-    switch(action.type) {
+    switch (action.type) {
         case SET_PLAYER_PANEL:
-            return Object.assign({}, state, {panelType: action.panelType});
+            return Object.assign({}, state, { panelType: action.panelType });
         default:
             return state;
     }

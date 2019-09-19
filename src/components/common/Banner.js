@@ -13,13 +13,13 @@ export default class HomeComponent extends Component {
 	}
 
 	render() {
-        const bannerClassName = "banner my-2" + (this.props.isSelected ? " selected-banner" : "");
+		const bannerClassName = "banner my-2" + (this.props.isSelected ? " selected-banner" : "");
 		return (
-            <div className={bannerClassName} onClick={this.props.onClick}>
-                <span className="banner-title d-flex justify-content-center pt-1">
-                    {this.props.label}
-                </span>
-            </div>
-        );
+			<div className={bannerClassName} onClick={this.props.onClick}>
+				<span className="banner-title d-flex justify-content-center pt-1">
+					{this.props.label}
+				</span>
+			</div>
+		);
 	}
 }

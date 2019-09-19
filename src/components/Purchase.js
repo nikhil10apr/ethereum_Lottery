@@ -23,18 +23,11 @@ export default class HomeComponent extends Component {
 	async purchase() {
 		try {
 			const purchaseResponse = await this.props.buyTicket(this.state.numberOfTickets);
-			this.setState({purchased: true, error: false, tickets: purchaseResponse.transactionHash})
-		} catch(err) {
+			this.setState({ purchased: true, error: false, tickets: purchaseResponse.transactionHash })
+		} catch (err) {
 			console.log(error)
-			this.setState({purchased: true, error: true, tickets: ''})
+			this.setState({ purchased: true, error: true, tickets: '' })
 		}
-		// this.props.buyTicket(this.state.numberOfTickets).then(function(resp, err) {
-		// 	if(err) {
-		// 		this.setState({purchased: true, error: true, tickets: ''})
-		// 	} else {
-		// 		this.setState({purchased: true, error: false, tickets: resp})
-		// 	}
-		// })
 	}
 
 	handleCounterChange(incrementType) {
