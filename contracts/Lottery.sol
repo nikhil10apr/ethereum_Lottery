@@ -9,7 +9,7 @@ contract Lottery {
     LotteryState public state;
     
     struct Player {
-        address playerAddress;
+        address payable playerAddress;
         string playerName;
         string emailId;
         string phoneNumber;
@@ -19,12 +19,13 @@ contract Lottery {
     struct LotteryTicket {
         uint lotteryId;
         uint price;
-        address ticketOwner;
+        address payable ticketOwner;
     }
     
 
     address private owner;
     uint32 private totalAmount;
+    uint32 private ticketPrice;
     Player[] public winner;
     
     mapping (address => Player) playerMap;
@@ -36,7 +37,7 @@ contract Lottery {
         owner = msg.sender;
     }
 
-    function registerPlayer(string memory _name, string memory _emailId, string memory  _phoneNumber) public returns (string memory result) {
+    function registerPlayer(string memory _name, string memory _emailId, string memory  _phoneNumber) public payable returns (string memory result) {
         //Owner shouldn't be player
         require(owner != msg.sender);
         require((state != LotteryState.NotStarted) && (state != LotteryState.Finished), "Player can't register while lottery has started or finished.");
@@ -53,10 +54,10 @@ contract Lottery {
         // new event to be send to owner
     }
     
-    function startLottery() public{
+    function startLottery(uint32 _ticketPrice) public{
         require (owner == msg.sender, "Only owner can open lottery process.");
         state = LotteryState.Started;
-        
+        ticketPrice = _ticketPrice;
     }
 
     function stopLottery() public{
@@ -65,14 +66,17 @@ contract Lottery {
         
     }
     
-    function buyLotteryTickets() public returns (string memory result) {
+    function buyLotteryTickets(uint32 _ticketNumbers) public payable returns (string memory result) {
+        require(msg.value >= (_ticketNumbers*ticketPrice));
         require(state == LotteryState.Started, "Lottery is not yet opened");
         require(owner != msg.sender, "Lottery owner/organizer can't buy tickets.");
         require(playerMap[msg.sender].isExist,"User not registered.");
         
-        LotteryTicket memory ticket = LotteryTicket(tickets.length+1,1, msg.sender);
-        totalAmount = totalAmount + 1;
-        tickets.push(ticket);
+        for(uint i=0; i<_ticketNumbers; i++) {
+           LotteryTicket memory ticket = LotteryTicket(tickets.length+1,ticketPrice, msg.sender);
+            totalAmount = totalAmount + ticketPrice;
+            tickets.push(ticket);
+            }
         result = "Ticket Bought Successfully !!!";
         return(result);
         //event to be sendout to owner
@@ -89,7 +93,7 @@ contract Lottery {
         
         uint randomNumber = uint(keccak256(abi.encodePacked(now,  tickets.length))) % tickets.length;
         LotteryTicket memory winnerTicket = tickets[randomNumber - 1];
-        
+        winnerTicket.ticketOwner.transfer(address(this).balance);
         winner.push(playerMap[winnerTicket.ticketOwner]);
         
         //Send notification
@@ -120,15 +124,23 @@ contract Lottery {
         _players = winner;
     }
 
-    //TODO - Not working 
-    function fetchMyTickets() view public returns (LotteryTicket[] memory _tickets ) {
-        uint j = 0;
-        for(uint i=0; i<tickets.length; i++) {
+    function fetchMyTickets() view public returns (LotteryTicket[] memory _mytickets ) {
+        uint m = 0;
+        for(uint i=0; i < tickets.length; i++) {
             if(tickets[i].ticketOwner == msg.sender) {
-                _tickets[j] = tickets[i];
-                j++;
+                m++;
             }
         }
+       
+       LotteryTicket[] memory mytickets =  new LotteryTicket[](m);
+       uint j = 0;
+        for(uint i=0; i < tickets.length; i++) {
+            if(tickets[i].ticketOwner == msg.sender) {
+                mytickets[j] = tickets[i];
+            }
+            j++;
+        }
+        return(mytickets);
     }
     
 }

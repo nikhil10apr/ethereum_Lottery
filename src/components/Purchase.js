@@ -48,9 +48,9 @@ export default class HomeComponent extends Component {
 				<p>Your current Wallet Balance is: {this.props.balance || '0'} ETH</p>
 				<p>Add tickets to your Cart and Buy them as per your convenience</p>
 				<div className='my-4 counter'>
-					<button className='btn btn-success flex-1' onClick={() => this.handleCounterChange('+')}>+</button>
-					<p className='px-2 my-2 d-flex justify-content-center'>{this.state.numberOfTickets}</p>
 					<button className='btn btn-success flex-1' onClick={() => this.handleCounterChange('-')} disabled={this.state.numberOfTickets === 0}>-</button>
+					<p className='px-2 my-2 d-flex justify-content-center'>{this.state.numberOfTickets}</p>
+					<button className='btn btn-success flex-1' onClick={() => this.handleCounterChange('+')}>+</button>
 				</div>
 				<button className='btn btn-info' disabled={this.state.numberOfTickets === 0} onClick={this.purchase}>Buy Now</button>
 			</div>
