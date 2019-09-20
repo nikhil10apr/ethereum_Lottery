@@ -96,8 +96,7 @@ export class HomeComponent extends Component {
 	}
 
 	getAllTickets() {
-		// this.web3Service.web3.contract.methods.fetchMyTickets().call()
-		return;
+		return this.web3Service.contract.methods.fetchMyTickets().call({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000})
 	}
 
 	getDataForBanner() {
@@ -107,13 +106,25 @@ export class HomeComponent extends Component {
 	getPanelComponent(banner) {
 		switch (banner) {
 			case 'register':
-				return <RegisterForLottery register={this.register} lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} />;
+				return <RegisterForLottery register={this.register}
+							lotteryOpen={this.state.lotteryOpen}
+							isRegistered={this.state.isRegistered}
+						/>;
 			case 'purchase':
-				return <Purchase lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} buyTicket={this.buyTicket} balance={this.userDetails.balance} />;
+				return <Purchase lotteryOpen={this.state.lotteryOpen}
+							isRegistered={this.state.isRegistered}
+							buyTicket={this.buyTicket}
+							balance={this.userDetails.balance}
+						/>;
 			case 'viewall':
-				return <ViewTickets />;
+				return <ViewTickets 
+							getAllTickets={this.getAllTickets}
+						/>;
 			default:
-				return <RegisterForLottery register={this.register} lotteryOpen={this.state.lotteryOpen} isRegistered={this.state.isRegistered} />;
+				return <RegisterForLottery register={this.register}
+							lotteryOpen={this.state.lotteryOpen}
+							isRegistered={this.state.isRegistered}
+						/>;
 		}
 	}
 
