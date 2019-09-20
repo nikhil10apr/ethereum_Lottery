@@ -106,12 +106,14 @@ export class HomeComponent extends Component {
 	getPanelComponent(banner) {
 		switch (banner) {
 			case 'register':
-				return <RegisterForLottery register={this.register}
+				return <RegisterForLottery 
+							register={this.register}
 							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
 						/>;
 			case 'purchase':
-				return <Purchase lotteryOpen={this.state.lotteryOpen}
+				return <Purchase 
+							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
 							buyTicket={this.buyTicket}
 							balance={this.userDetails.balance}
@@ -121,7 +123,8 @@ export class HomeComponent extends Component {
 							getAllTickets={this.getAllTickets}
 						/>;
 			default:
-				return <RegisterForLottery register={this.register}
+				return <RegisterForLottery 
+							register={this.register}
 							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
 						/>;
@@ -132,7 +135,7 @@ export class HomeComponent extends Component {
 		return <div className='container player-section'>
 			<div className='col-lg player-sidebar'>
 				<h2 className='sidebar-header d-flex justify-content-center'>
-					Welcome, {this.userDetails.name}
+					Welcome, {decodeURIComponent(this.userDetails.name)}
 				</h2>
 				<div>
 					<Banner

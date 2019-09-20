@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+import Banner from './common/Banner'
+
+import { setPanelType } from '../redux/reducers/admin';
+import { connect } from 'react-redux';
+
 import Web3Service from '../ethereum/ethereum-app-utility';
 import lotteryStates from '../constants/lotteryStates';//0=NotStared, 1=Started, 2=Finished
 
 import '../styles/admin.scss';
 
-export default class AdminComponent extends Component {
+export class AdminComponent extends Component {
 	constructor() {
 		super();
 
@@ -109,15 +114,52 @@ export default class AdminComponent extends Component {
 
 	render() {
 		return <div className='container admin-section'>
-			<h2>Welcome, ADMIN</h2>
-			<div className='row'>
-				<div className='col-sm-3 players-section'>
-					<ul className='playersList'>
-						{this.state.playersList}
-					</ul>
+			<div className='col-lg admin-sidebar'>
+				<h2 className='sidebar-header d-flex justify-content-center'>
+					Welcome, {decodeURIComponent(this.userDetails.name)}
+				</h2>
+				<div>
+					<Banner
+						label='Manage Lottery'
+						isSelected={this.props.selectedPanel === 'manageLottery'}
+						onClick={() => this.props.setPanel('manageLottery')}
+					/>
 				</div>
-				{this.renderButtons()}
+				<div>
+					<Banner
+						label='Pick a Winner'
+						isSelected={this.props.selectedPanel === 'selectWinner'}
+						onClick={() => this.props.setPanel('selectWinner')}
+					/>
+				</div>
+				<div>
+					<Banner
+						label='View All Registered Users'
+						isSelected={this.props.selectedPanel === 'viewallusers'}
+						onClick={() => this.props.setPanel('viewallusers')}
+					/>
+				</div>
+				<div>
+					<Banner
+						label='View All Purchased Tickets'
+						isSelected={this.props.selectedPanel === 'viewalltickets'}
+						onClick={() => this.props.setPanel('viewalltickets')}
+					/>
+				</div>
+			</div>
+			<div className='col-lg pt-5 mt-5 pl-5 admin-panel'>
+				{/* {this.getPanelComponent(this.props.selectedPanel)} */}
 			</div>
 		</div>;
 	}
 }
+
+const mapStateToProps = (state) => ({
+	selectedPanel: state.player.panelType
+})
+
+const mapDispatchToProps = (dispatch) => ({
+	setPanel: (panel) => dispatch(setPanelType(panel))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(AdminComponent)
