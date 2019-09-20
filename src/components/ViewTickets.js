@@ -19,10 +19,12 @@ export default class HomeComponent extends Component {
 			<div className='tickets'>
 				<h2 className='mb-5'>You have purchased {tickets.length} Ticket(s)</h2>
 				<table className='mt-4'>
-					<th className='pb-4 d-flex justify-content-center'><td>Ticket ID</td></th>
-					{tickets.map(function (ticket) {
-						return <tr className='d-flex justify-content-center'><td>{ticket.lotteryId}</td></tr>
-					})}
+					<tbody>
+						<tr className='pb-4 d-flex justify-content-center'><th>Ticket ID</th></tr>
+						{tickets.map(function (ticket) {
+							return <tr className='d-flex justify-content-center'><td>{ticket.lotteryId}</td></tr>
+						})}
+					</tbody>
 				</table>
 			</div>
 		)

@@ -92,7 +92,7 @@ export class HomeComponent extends Component {
 	}
 
 	buyTicket(numberOfTickets) {
-		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei('1') });
+		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei((this.props.lotteryPrice * numberOfTickets).toString()) });
 	}
 
 	getAllTickets() {
@@ -167,7 +167,8 @@ export class HomeComponent extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	selectedPanel: state.player.panelType
+	selectedPanel: state.player.panelType,
+	lotteryPrice: state.admin.ticketPrice
 })
 
 const mapDispatchToProps = (dispatch) => ({

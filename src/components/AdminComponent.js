@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import axios from 'axios';
 
 import Banner from './common/Banner'
+import ManageLottery from './ManageLottery'
+import ViewPlayers from './ViewPlayers'
+import ViewTickets from './ViewTickets'
 
-import { setPanelType } from '../redux/reducers/admin';
+import { setPanelType, setTicketPrice, setLotteryWinner } from '../redux/reducers/admin';
 import { connect } from 'react-redux';
 
 import Web3Service from '../ethereum/ethereum-app-utility';
@@ -22,11 +25,15 @@ export class AdminComponent extends Component {
 			lotteryStatus: null
 		};
 		this.getLotteryStatus();
-		this.listPlayers();
+		// this.listPlayers();
 
 		this.startLottery = this.startLottery.bind(this);
 		this.stopLottery = this.stopLottery.bind(this);
 		this.pickWinner = this.pickWinner.bind(this);
+		this.getTickets = this.getTickets.bind(this);
+		this.getUsers = this.getUsers.bind(this);
+
+		this.getPanelComponent = this.getPanelComponent.bind(this)
 	}
 
 	getLotteryStatus() {
@@ -51,11 +58,13 @@ export class AdminComponent extends Component {
 		});
 	}
 
-	startLottery() {
-		this.web3Service.contract.methods.startLottery(this.web3Service.web3.utils.toWei('1')).send({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000}, (err, resp) => {
+	startLottery(ticketPrice) {
+		this.web3Service.contract.methods.startLottery(this.web3Service.web3.utils.toWei(ticketPrice.toString())).send({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000}, (err, resp) => {
 			this.setState({
 				lotteryStatus: lotteryStates[1]
 			});
+			this.props.setPrice(ticketPrice)
+			this.props.setWinner({})
 			this.web3Service.web3.eth.getAccounts(function(err, accounts) {
 				axios.put('/updateAccounts', {
 					accounts: accounts
@@ -81,35 +90,41 @@ export class AdminComponent extends Component {
 		});
 	}
 
-	renderButtons() {
-		if(this.state.lotteryStatus === 'NotStarted') {
-			return <div className='col-sm-9 winner-section'>
-				<button className='btn btn-success' onClick={this.startLottery}>START LOTTERY</button>
-			</div>;
-		} else if(this.state.lotteryStatus === 'Started') {
-			return <div className='col-sm-9 winner-section'>
-				<button className='btn btn-success' onClick={this.stopLottery}>STOP LOTTERY</button>
-			</div>;
-		} else if(this.state.lotteryStatus === 'Finished') {
-			return <div className='col-sm-9 winner-section'>
-				<button className='btn btn-success' onClick={this.pickWinner}>PICK WINNER</button>
-			</div>;
-		}
+	getTickets() {
+		return this.web3Service.contract.methods.getLotteryTickets().call({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000})
 	}
 
-	listPlayers() {
-		let playersList;
-		this.web3Service.contract.methods.getPlayers().call({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000}, (err, resp) => {
-			playersList = resp ? resp.map(function(ele) {
-				return <li>{ele.playerName}</li>;
-			}) : [];
-			this.setState({
-				playersList: playersList
-			});
-		});
-		this.web3Service.web3.eth.getAccounts((err,accs) => {
-			console.log(accs);
-		});
+	getUsers() {
+		return this.web3Service.contract.methods.getPlayers().call({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000})
+	}
+
+	getPanelComponent(banner) {
+		switch (banner) {
+			case 'manageLottery':
+				return <ManageLottery 
+							lotteryState={this.state.lotteryStatus}
+							stopLottery={this.stopLottery}
+							startLottery={this.startLottery}
+							pickWinner={this.pickWinner}
+							winner={this.props.winner}
+						/>
+			case 'viewallusers':
+				return <ViewPlayers 
+							getAllPlayers={this.getUsers}
+						/>
+			case 'viewalltickets':
+				return <ViewTickets 
+							getAllTickets={this.getTickets}
+						/>
+			default:
+				return <ManageLottery 
+							lotteryState={this.state.lotteryStatus}
+							stopLottery={this.stopLottery}
+							startLottery={this.startLottery}
+							pickWinner={this.pickWinner}
+							winner={this.props.winner}
+						/>
+		}
 	}
 
 	render() {
@@ -123,13 +138,6 @@ export class AdminComponent extends Component {
 						label='Manage Lottery'
 						isSelected={this.props.selectedPanel === 'manageLottery'}
 						onClick={() => this.props.setPanel('manageLottery')}
-					/>
-				</div>
-				<div>
-					<Banner
-						label='Pick a Winner'
-						isSelected={this.props.selectedPanel === 'selectWinner'}
-						onClick={() => this.props.setPanel('selectWinner')}
 					/>
 				</div>
 				<div>
@@ -148,18 +156,21 @@ export class AdminComponent extends Component {
 				</div>
 			</div>
 			<div className='col-lg pt-5 mt-5 pl-5 admin-panel'>
-				{/* {this.getPanelComponent(this.props.selectedPanel)} */}
+				{this.getPanelComponent(this.props.selectedPanel)}
 			</div>
 		</div>;
 	}
 }
 
 const mapStateToProps = (state) => ({
-	selectedPanel: state.player.panelType
+	selectedPanel: state.admin.panelType,
+	winner: state.admin.winner
 })
 
 const mapDispatchToProps = (dispatch) => ({
-	setPanel: (panel) => dispatch(setPanelType(panel))
+	setPanel: (panel) => dispatch(setPanelType(panel)),
+	setPrice: (price) => dispatch(setTicketPrice(price)),
+	setWinner: (winner) => dispatch(setLotteryWinner(winner))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdminComponent)
