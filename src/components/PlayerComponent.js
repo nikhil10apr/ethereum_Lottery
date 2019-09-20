@@ -28,6 +28,7 @@ export class HomeComponent extends Component {
 
 		this.register = this.register.bind(this);
 		this.buyTicket = this.buyTicket.bind(this);
+		this.getAllTickets = this.getAllTickets.bind(this);
 
 		this.getPanelComponent = this.getPanelComponent.bind(this);
 
@@ -91,7 +92,12 @@ export class HomeComponent extends Component {
 	}
 
 	buyTicket(numberOfTickets) {
-		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: numberOfTickets });
+		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei('1') });
+	}
+
+	getAllTickets() {
+		// this.web3Service.web3.contract.methods.fetchMyTickets().call()
+		return;
 	}
 
 	getDataForBanner() {
