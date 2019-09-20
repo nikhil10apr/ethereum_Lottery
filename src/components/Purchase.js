@@ -25,7 +25,7 @@ export default class HomeComponent extends Component {
 			const purchaseResponse = await this.props.buyTicket(this.state.numberOfTickets);
 			this.setState({ purchased: true, error: false, tickets: purchaseResponse.transactionHash })
 		} catch (err) {
-			console.log(error)
+			console.log(err)
 			this.setState({ purchased: true, error: true, tickets: '' })
 		}
 	}

@@ -82,6 +82,8 @@ export class HomeComponent extends Component {
 					}
 					this.setState({
 						isRegistered: true
+					}, function() {
+						this.props.setPanel('purchase');
 					});
 					console.log(resp)
 				});
@@ -89,7 +91,7 @@ export class HomeComponent extends Component {
 	}
 
 	buyTicket(numberOfTickets) {
-		return this.web3Service.contract.methods.buyLotteryTickets().send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000 });
+		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: numberOfTickets });
 	}
 
 	getDataForBanner() {

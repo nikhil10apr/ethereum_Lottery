@@ -3,6 +3,18 @@ import React, { Component, Fragment } from 'react';
 export default class HomeComponent extends Component {
 	constructor() {
 		super();
+
+		this.renderRegister = this.renderRegister.bind(this);
+	}
+
+	renderRegister() {
+		return (
+			<div>
+				<h2 className='mb-5 pb-3'>Register For Lottery</h2>
+				<p>The Lottery is now open...</p>
+				<button className='btn btn-success' onClick={this.props.register}>Register Now</button> 
+			</div>
+		)
 	}
 
 	render() {
@@ -12,7 +24,7 @@ export default class HomeComponent extends Component {
 					!this.props.lotteryOpen 
 						? <h2>Lottery is not open yet</h2> 
 						: !this.props.isRegistered 
-							? <button className='btn btn-success' onClick={this.props.register}>REGISTER FOR LOTTERY</button> 
+							? this.renderRegister()
 							: <h2>You are already registered for the lottery</h2>
 				}
 			</div>

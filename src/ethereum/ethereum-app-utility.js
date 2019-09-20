@@ -14,7 +14,7 @@ class Web3Service {
   }
 
   loadContract(address) {
-  	this.contract = new this.web3.eth.Contract(contractJSON.abi, '0x02Bfd947ba8eF1Fbb6AB7516EDa824e896cCE8e9');
+  	this.contract = new this.web3.eth.Contract(contractJSON.abi, '0x4cFAC48A9C06C37ff20277Fa6a5571181Df423ba');
   }
 }
 

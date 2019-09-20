@@ -67,7 +67,7 @@ contract Lottery {
     }
     
     function buyLotteryTickets(uint32 _ticketNumbers) public payable returns (string memory result) {
-        require(msg.value >= (_ticketNumbers*ticketPrice));
+        require(msg.value >= (_ticketNumbers*ticketPrice), "Insufficient balance.");
         require(state == LotteryState.Started, "Lottery is not yet opened");
         require(owner != msg.sender, "Lottery owner/organizer can't buy tickets.");
         require(playerMap[msg.sender].isExist,"User not registered.");
