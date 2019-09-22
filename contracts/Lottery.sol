@@ -54,7 +54,6 @@ contract Lottery {
     function registerPlayer(string memory _name, string memory _emailId, string memory  _phoneNumber) public {
         //Owner shouldn't be player
         require(owner != msg.sender, "Lottery owner can't register as player.");
-        require(state == LotteryState.Started, "Player can't register while lottery has started or finished.");
         require(!playerMap[msg.sender].isExist, "User already registered as player");
         
         Player memory _player = Player(msg.sender, _name, _emailId, _phoneNumber,true);
@@ -92,25 +91,24 @@ contract Lottery {
     }
     
     
-    function buyLotteryTickets(uint count, uint value) public payable {
+    function buyLotteryTickets(uint count) public payable {
         require(owner != msg.sender, "Lottery owner/organizer can't buy tickets.");
         require(state == LotteryState.Started, "Lottery is not yet opened");
         require(playerMap[msg.sender].isExist,"User not registered.");
-        require(msg.sender.balance > value, "Insufficient balance to purchase ticket(s).");
+        require(msg.sender.balance > msg.value, "Insufficient balance to purchase ticket(s).");
         //uint memory ticketsPrice = count.mul(ticketPrice);
         uint  ticketsPrice = count * ticketPrice;
-        require(value == ticketsPrice, "There is difference between actual price and provided price.");
-        require(msg.value == ticketsPrice, "Amount sent for buying ticket(s) are not sufficient");
+        require(msg.value == ticketsPrice, "There is difference between actual price and provided price.");
         
         for(uint counter=1; counter <= count; counter++) {
             //LotteryTicket memory ticket = LotteryTicket(tickets.length.add(count),ticketPrice, msg.sender);
-            LotteryTicket memory ticket = LotteryTicket(tickets.length + count,ticketPrice, msg.sender);
+            LotteryTicket memory ticket = LotteryTicket(tickets.length + counter,ticketPrice, msg.sender);
             tickets.push(ticket);
             playerLotteryTicketsMapping[msg.sender].push(ticket);
         }
         
         //event event
-        emit BuyTicket(msg.sender, count, value);
+        emit BuyTicket(msg.sender, count, msg.value);
     }
     
     function processLotteryWinners() public returns (Player memory _winner) {
