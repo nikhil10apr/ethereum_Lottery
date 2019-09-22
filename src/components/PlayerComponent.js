@@ -1,19 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import axios from 'axios';
 
 import Banner from './common/Banner'
 import RegisterForLottery from './RegisterForLottery'
 import Purchase from './Purchase'
 import ViewTickets from './ViewTickets'
-
 import { setPanelType } from '../redux/reducers/player';
-
 import Web3Service from '../ethereum/ethereum-app-utility';
 import '../styles/player.scss';
-import { connect } from 'react-redux';
 
-export class HomeComponent extends Component {
+const lhsMenuItems = {
+	register: 'Register for Lottery',
+	purchase: 'Purchase Ticket(s)',
+	viewall: 'View My Tickets'
+};
+
+export class PlayerComponent extends Component {
 	constructor() {
 		super();
 
@@ -23,16 +26,12 @@ export class HomeComponent extends Component {
 
 		this.state = {
 			lotteryOpen: false,
-			isRegistered: false
+			isRegistered: false,
+			balance: '0'
 		};
 
 		this.register = this.register.bind(this);
 		this.buyTicket = this.buyTicket.bind(this);
-		this.getAllTickets = this.getAllTickets.bind(this);
-
-		this.getPanelComponent = this.getPanelComponent.bind(this);
-
-		this.getDataForBanner = this.getDataForBanner.bind(this);
 	}
 
 	getLotteryStatus() {
@@ -43,7 +42,17 @@ export class HomeComponent extends Component {
 		});
 	}
 
-	async getUserDetails() {
+	getBalance() {
+		return this.web3Service.web3.eth.getBalance(this.userDetails.account).then((result) => {
+			const etherBalance = this.web3Service.web3.utils.fromWei(result);
+			this.userDetails.balance = etherBalance;
+			this.setState({
+				balance: etherBalance
+			});
+		});
+	}
+
+	getUserDetails() {
 		this.userDetails = {
 			name: '',
 			phone: '',
@@ -55,18 +64,13 @@ export class HomeComponent extends Component {
 		location.href.split('?')[1].split('&').forEach((param) => {
 			this.userDetails[param.split('=')[0]] = decodeURIComponent(param.split('=')[1]);
 		});
-		this.userDetails.account && this.web3Service.contract.methods.isPlayerRegistered().call({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000 }, (err, resp) => {
-			this.setState({
-				isRegistered: resp
-			});
-		})
 		if (this.userDetails.account) {
-			try {
-				const accountBalance = await this.web3Service.web3.eth.getBalance(this.userDetails.account);
-				this.userDetails.balance = this.web3Service.web3.utils.fromWei(accountBalance);
-			} catch (err) {
-				console.log(err);
-			}
+			this.web3Service.contract.methods.isPlayerRegistered().call({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000 }, (err, resp) => {
+				this.setState({
+					isRegistered: resp
+				});
+			});
+			const accountBalance = this.getBalance()
 		}
 	}
 
@@ -74,33 +78,25 @@ export class HomeComponent extends Component {
 		axios.post('/assignAccount', {
 			userId: this.userDetails.userId
 		})
-			.then(response => {
-				this.userDetails.account = response.data.account;
-				this.web3Service.contract.methods.registerPlayer(this.userDetails.name, this.userDetails.emailId, this.userDetails.phone).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000 }, (err, resp) => {
-					if (err) {
-						console.log(err);
-						return false;
-					}
-					this.setState({
-						isRegistered: true
-					}, function() {
-						this.props.setPanel('purchase');
-					});
-					console.log(resp)
+		.then(response => {
+			this.userDetails.account = response.data.account;
+			this.web3Service.contract.methods.registerPlayer(this.userDetails.name, this.userDetails.emailId, this.userDetails.phone).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000 }, (err, resp) => {
+				if (err) {
+					console.log(err);
+					return false;
+				}
+				this.getBalance();
+				this.setState({
+					isRegistered: true
+				}, function() {
+					this.props.setPanel('purchase');
 				});
 			});
+		});
 	}
 
 	buyTicket(numberOfTickets) {
 		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei((this.props.lotteryPrice * numberOfTickets).toString()) });
-	}
-
-	getAllTickets() {
-		return this.web3Service.contract.methods.fetchMyTickets().call({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000})
-	}
-
-	getDataForBanner() {
-		return;
 	}
 
 	getPanelComponent(banner) {
@@ -119,9 +115,7 @@ export class HomeComponent extends Component {
 							balance={this.userDetails.balance}
 						/>;
 			case 'viewall':
-				return <ViewTickets 
-							getAllTickets={this.getAllTickets}
-						/>;
+				return <ViewTickets account={this.userDetails.account}/>;
 			default:
 				return <RegisterForLottery 
 							register={this.register}
@@ -137,27 +131,15 @@ export class HomeComponent extends Component {
 				<h2 className='sidebar-header d-flex justify-content-center'>
 					Welcome, {decodeURIComponent(this.userDetails.name)}
 				</h2>
-				<div>
-					<Banner
-						label='Register for Lottery'
-						isSelected={this.props.selectedPanel === 'register'}
-						onClick={() => this.props.setPanel('register')}
-					/>
-				</div>
-				<div>
-					<Banner
-						label='Purchase Ticket(s)'
-						isSelected={this.props.selectedPanel === 'purchase'}
-						onClick={() => this.props.setPanel('purchase')}
-					/>
-				</div>
-				<div>
-					<Banner
-						label='View My Tickets'
-						isSelected={this.props.selectedPanel === 'viewall'}
-						onClick={() => this.props.setPanel('viewall')}
-					/>
-				</div>
+				{
+					Object.keys(lhsMenuItems).map(key => {
+						return (<Banner
+							label={lhsMenuItems[key]}
+							isSelected={this.props.selectedPanel === key}
+							onClick={() => this.props.setPanel(key)}
+						/>);
+					})
+				}
 			</div>
 			<div className='col-lg pt-5 mt-5 pl-5 player-panel'>
 				{this.getPanelComponent(this.props.selectedPanel)}
@@ -175,4 +157,4 @@ const mapDispatchToProps = (dispatch) => ({
 	setPanel: (panel) => dispatch(setPanelType(panel))
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(HomeComponent)
+export default connect(mapStateToProps, mapDispatchToProps)(PlayerComponent)

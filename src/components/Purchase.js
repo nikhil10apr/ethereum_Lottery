@@ -11,19 +11,18 @@ export default class HomeComponent extends Component {
 			tickets: '',
 			error: false,
 			purchased: false
-		}
+		};
 
-		this.purchase = this.purchase.bind(this)
-		this.renderForm = this.renderForm.bind(this)
-		this.renderPurchase = this.renderPurchase.bind(this)
-		this.renderConfirmation = this.renderConfirmation.bind(this)
-		this.handleCounterChange = this.handleCounterChange.bind(this)
+		this.purchase = this.purchase.bind(this);
+		this.handleCounterChange = this.handleCounterChange.bind(this);
 	}
 
-	async purchase() {
+	purchase() {
 		try {
-			const purchaseResponse = await this.props.buyTicket(this.state.numberOfTickets);
-			this.setState({ purchased: true, error: false, tickets: purchaseResponse.transactionHash })
+			this.props.buyTicket(this.state.numberOfTickets).then((err, resp) => {
+				if (err) return;
+				this.setState({ purchased: true, error: false, tickets: purchaseResponse.transactionHash });
+			});
 		} catch (err) {
 			console.log(err)
 			this.setState({ purchased: true, error: true, tickets: '' })
@@ -42,9 +41,7 @@ export default class HomeComponent extends Component {
 	renderForm() {
 		return (
 			<div className='purchase'>
-
 				<h1 className='mb-5'>Purchase Lottery Tickets</h1>
-
 				<p>Your current Wallet Balance is: {this.props.balance || '0'} ETH</p>
 				<p>Add tickets to your Cart and Buy them as per your convenience</p>
 				<div className='my-4 counter'>
@@ -69,7 +66,7 @@ export default class HomeComponent extends Component {
 
 				}
 			</div>
-		)
+		);
 	}
 
 	renderConfirmation() {
@@ -81,7 +78,7 @@ export default class HomeComponent extends Component {
 						: <h2>Tickets bought successfully</h2>
 				}
 			</div>
-		)
+		);
 	}
 
 	render() {

@@ -1,12 +1,6 @@
 import React, { Component, Fragment } from 'react';
 
 export default class HomeComponent extends Component {
-	constructor() {
-		super();
-
-		this.renderRegister = this.renderRegister.bind(this);
-	}
-
 	renderRegister() {
 		return (
 			<div>
