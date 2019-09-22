@@ -1,20 +1,22 @@
 import React, { Component, Fragment } from 'react';
 
+import Web3Service from '../ethereum/ethereum-app-utility';
+
 import './viewTickets.scss'
 
-export default class HomeComponent extends Component {
-	constructor() {
+export default class ViewTicketComponent extends Component {
+	constructor(props) {
 		super();
 
+		this.web3Service = Web3Service;
 		this.state = {
 			tickets: []
-		}
-		this.fetchTickets = this.fetchTickets.bind(this);
-		this.showTickets = this.showTickets.bind(this);
+		};
+		this.fetchTickets(props.account);
 	}
 
 	showTickets() {
-		const tickets = this.state.tickets;
+		const { tickets } = this.state;
 		return (
 			<div className='tickets'>
 				<h2 className='mb-5'>You have purchased {tickets.length} Ticket(s)</h2>
@@ -28,10 +30,12 @@ export default class HomeComponent extends Component {
 		)
 	}
 
-	async fetchTickets() {
+	fetchTickets(account) {
 		try {
-			const tickets = await this.props.getAllTickets();
-			this.setState({tickets, error: false})
+			this.web3Service.contract.methods.fetchMyTickets().call({ from: account, gasPrice: '10000000000000', gas: 1000000 }).then((err, resp) => {
+				if (err) return;
+				this.setState({tickets, error: false})
+			});
 		} catch(error) {
 			console.log(error)
 			this.setState({error: true})
@@ -39,7 +43,6 @@ export default class HomeComponent extends Component {
 	}
 
 	render() {
-		this.fetchTickets()
 		return (
 			<div>
 				{
