@@ -1,4 +1,28 @@
 .player-section {
-	margin: 10px auto;
-	padding: 10px;
+	margin: 0;
+    padding: 0 10px 10px 0;
+}
+
+.sidebar-header {
+	padding-top: 64px;
+	padding-bottom: 64px;
+}
+
+.player-sidebar {
+	width: 350px;
+    background-color: lightblue;
+    height: 1000px;
+    position: fixed;
+	display: inline-block;
+	overflow: hidden;
+	background-color: #f44336!important;
+
+	h2 {
+		color: white;
+	}
+}
+
+.player-panel {
+	margin-left: 350px;
+    display: inline-block;
 }

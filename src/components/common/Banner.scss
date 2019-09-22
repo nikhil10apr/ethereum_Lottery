@@ -1,0 +1,18 @@
+.banner {
+    // background-color: #33383e;
+    height: 35px !important;
+    color: white;
+    cursor: pointer;
+    margin-top: 1px;
+    margin-bottom: 1px;
+  }
+
+  .banner:hover {
+    background-color: white;
+    color: black
+  }
+  
+  .banner-title {
+    font-size: 18px;
+    font-family: "Trebuchet MS";
+  }

@@ -1,5 +1,7 @@
 import { combineReducers } from 'redux'
 
+import { reducer as player } from './player'
+
 const initialState = {};
 function todoApp(state = initialState, action) {
   // For now, don't handle any actions
@@ -8,7 +10,7 @@ function todoApp(state = initialState, action) {
 }
 
 const rootReducer = combineReducers({
-  todoApp
+  player
 })
 
 export default rootReducer

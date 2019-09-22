@@ -47,7 +47,7 @@ export default class AdminComponent extends Component {
 	}
 
 	startLottery() {
-		this.web3Service.contract.methods.startLottery().send({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000}, (err, resp) => {
+		this.web3Service.contract.methods.startLottery(this.web3Service.web3.utils.toWei('1')).send({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000}, (err, resp) => {
 			this.setState({
 				lotteryStatus: lotteryStates[1]
 			});
