@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux'
 
 import { reducer as player } from './player'
+import { reducer as admin } from './admin'
 
 const initialState = {};
 function todoApp(state = initialState, action) {
@@ -10,7 +11,8 @@ function todoApp(state = initialState, action) {
 }
 
 const rootReducer = combineReducers({
-  player
+  player,
+  admin
 })
 
 export default rootReducer

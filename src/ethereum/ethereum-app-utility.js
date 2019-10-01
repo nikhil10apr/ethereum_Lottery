@@ -4,13 +4,13 @@ const contractJSON = require('../../build/contracts/Lottery.json');
 
 class Web3Service {
   constructor(address) {
-    this.nodeUrl = 'http://127.0.0.1:7545';
+    this.nodeUrl = 'ws://127.0.0.1:7545';
     this.connectToNode();
     this.loadContract(address);
   }
 
   connectToNode() {
-    this.web3 = new Web3(new Web3.providers.HttpProvider(this.nodeUrl));
+    this.web3 = new Web3(new Web3.providers.WebsocketProvider(this.nodeUrl));
   }
 
   loadContract(address) {

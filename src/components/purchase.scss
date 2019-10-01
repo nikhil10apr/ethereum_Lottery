@@ -1,15 +1,22 @@
 .purchase {
 	width: 500px;
-	margin: 10px 10%;
 	padding: 10px;
-
+	flex: 3;
 	h1 {
-		text-align: center;
+		
 	}
 	p {
 		input {
 			float: right;
 		}
+	}
+}
+.calculationPanel {
+	flex: 1;
+	border-left: dotted 1px #a8a8a8;
+	text-align: right;
+	li {
+		border-bottom: dotted 1px #a8a8a8;
 	}
 }
 

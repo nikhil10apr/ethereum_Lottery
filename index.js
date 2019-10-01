@@ -24,6 +24,32 @@ app.get('/', (req, res) => {
 	res.send('Hello World!');
 });
 
+app.get('/getLotteryTicketPrice', (req, res) => {
+	console.log('Request for "/createNewLottery"');
+	client.connect(function(err) {
+	  console.log("Connected successfully to server");
+
+	  const db = client.db(dbName);
+	  db.collection('lottery').find({name: req.body.lotteryName}, function(err, result) {
+	  	if(err) { res.send(err); }
+		res.send(result);
+	  });
+	});
+});
+
+app.post('/createNewLottery', (req, res) => {
+	console.log('Request for "/createNewLottery"');
+	client.connect(function(err) {
+	  console.log("Connected successfully to server");
+
+	  const db = client.db(dbName);
+	  db.collection('lottery').insertOne({name: req.body.lotteryName, price: req.body.ticketPrice}, function(err, result) {
+	  	if(err) { res.send(err); }
+		res.send(result);
+	  });
+	});
+});
+
 app.put('/updateAccounts', (req, res) => {
 	console.log('Request for "/"');
 	const accDetails = req.body.accounts.map(function(account) {

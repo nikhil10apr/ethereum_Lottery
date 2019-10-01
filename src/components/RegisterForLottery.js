@@ -11,15 +11,23 @@ export default class HomeComponent extends Component {
 		)
 	}
 
+	renderContent() {
+		if(!this.props.lotteryOpen && this.props.winner) {
+			return <h2>Winning Ticket Is: {this.props.winner}</h2>;
+		} else if(!this.props.lotteryOpen) {
+			return <h2>Lottery is not open yet</h2>;
+		} else if(!this.props.isRegistered) {
+			return this.renderRegister()
+		} else {
+			return <h2>You are already registered for the lottery</h2>;
+		}
+	}
+
 	render() {
 		return (
 			<div>
 				{
-					!this.props.lotteryOpen 
-						? <h2>Lottery is not open yet</h2> 
-						: !this.props.isRegistered 
-							? this.renderRegister()
-							: <h2>You are already registered for the lottery</h2>
+					this.renderContent()
 				}
 			</div>
 		);

@@ -9,12 +9,13 @@ import NewUser from './components/NewUserComponent';
 import OldUser from './components/OldUserComponent';
 import Admin from './components/AdminComponent';
 import Player from './components/PlayerComponent';
+import './resources/favicon.ico';
 
 const render = () => ReactDOM.render(
 	<Provider store={store}>
 		<BrowserRouter>
 			<Switch>
-		      <Route path='/' component={Home} exact />
+		      <Route path='/' component={OldUser} exact />
 		      <Route path='/signUp' component={NewUser} exact />
 		      <Route path='/login' component={OldUser} exact />
 		      <Route path='/admin' component={Admin} exact />

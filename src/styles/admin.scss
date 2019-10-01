@@ -1,6 +1,6 @@
 .admin-section {
-	margin: 10px auto;
-	padding: 10px;
+	margin: 0;
+    padding: 0 10px 10px 0;
 	ul {
 		margin: 0px;
 		padding: 5px 10px;
@@ -9,4 +9,39 @@
 		border: solid 1px #00f;
 		border-radius: 5px;
 	}
+}
+
+.sidebar-header {
+	padding-top: 64px;
+	padding-bottom: 64px;
+}
+
+.admin-sidebar {
+	width: 350px;
+    background-color: lightblue;
+    height: 1000px;
+    position: fixed;
+	display: inline-block;
+	overflow: hidden;
+	background-color: darkslateblue !important;
+
+	h2 {
+		color: white;
+	}
+}
+
+.admin-panel {
+	margin-left: 350px;
+    display: flex;
+}
+
+.flash {
+	width: 150px;
+    position: absolute;
+    background-color: #f00;
+    border-radius: 5px;
+    right: 20px;
+    top: 20px;
+    text-align: center;
+    color: white;
 }

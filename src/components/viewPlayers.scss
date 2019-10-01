@@ -1,4 +1,4 @@
-.tickets {
+.players {
     width: 700px;
     thead {
     	background-color: #a8a8a8
@@ -10,15 +10,6 @@
         }
     }
     tbody tr:hover {
-    	background-color: #dedede;
+        background-color: #dedede;
     }
-}
-
-.label-width {
-    width: 120px
-}
-
-h4 {
-    display: inline-block;
-    color: red;
 }

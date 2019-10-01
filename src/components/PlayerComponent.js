@@ -27,11 +27,29 @@ export class PlayerComponent extends Component {
 		this.state = {
 			lotteryOpen: false,
 			isRegistered: false,
-			balance: '0'
+			balance: '0',
+			winningTicket: null
 		};
 
 		this.register = this.register.bind(this);
 		this.buyTicket = this.buyTicket.bind(this);
+		this.bindEvents();
+	}
+
+	bindEvents() {
+		this.web3Service.contract.events.lotteryStatusUpdate()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.getLotteryStatus();
+		});
+
+		this.web3Service.contract.events.winnerIs()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.setState({
+		    	winningTicket: event.returnValues._ticket.lotteryId
+		    });
+		});
 	}
 
 	getLotteryStatus() {
@@ -96,28 +114,35 @@ export class PlayerComponent extends Component {
 	}
 
 	buyTicket(numberOfTickets) {
-		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei('1') });
+		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei(((this.props.lotteryPrice || 1) * numberOfTickets).toString()) });
 	}
 
 	getPanelComponent(banner) {
 		switch (banner) {
 			case 'register':
-				return <RegisterForLottery register={this.register}
+				return <RegisterForLottery 
+							register={this.register}
 							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
+							winner={this.state.winningTicket}
 						/>;
 			case 'purchase':
-				return <Purchase lotteryOpen={this.state.lotteryOpen}
+				return <Purchase 
+							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
 							buyTicket={this.buyTicket}
 							balance={this.userDetails.balance}
+							account={this.userDetails.account}
+							winner={this.state.winningTicket}
 						/>;
 			case 'viewall':
 				return <ViewTickets account={this.userDetails.account}/>;
 			default:
-				return <RegisterForLottery register={this.register}
+				return <RegisterForLottery 
+							register={this.register}
 							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
+							winner={this.state.winningTicket}
 						/>;
 		}
 	}
@@ -126,7 +151,7 @@ export class PlayerComponent extends Component {
 		return <div className='container player-section'>
 			<div className='col-lg player-sidebar'>
 				<h2 className='sidebar-header d-flex justify-content-center'>
-					Welcome, {this.userDetails.name}
+					Welcome, {decodeURIComponent(this.userDetails.name)}
 				</h2>
 				{
 					Object.keys(lhsMenuItems).map(key => {
@@ -146,7 +171,8 @@ export class PlayerComponent extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	selectedPanel: state.player.panelType
+	selectedPanel: state.player.panelType,
+	lotteryPrice: state.admin.ticketPrice
 })
 
 const mapDispatchToProps = (dispatch) => ({
