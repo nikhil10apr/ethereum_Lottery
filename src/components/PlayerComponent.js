@@ -27,11 +27,29 @@ export class PlayerComponent extends Component {
 		this.state = {
 			lotteryOpen: false,
 			isRegistered: false,
-			balance: '0'
+			balance: '0',
+			winningTicket: null
 		};
 
 		this.register = this.register.bind(this);
 		this.buyTicket = this.buyTicket.bind(this);
+		this.bindEvents();
+	}
+
+	bindEvents() {
+		this.web3Service.contract.events.lotteryStatusUpdate()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.getLotteryStatus();
+		});
+
+		this.web3Service.contract.events.winnerIs()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.setState({
+		    	winningTicket: event.returnValues._ticket.lotteryId
+		    });
+		});
 	}
 
 	getLotteryStatus() {
@@ -96,7 +114,7 @@ export class PlayerComponent extends Component {
 	}
 
 	buyTicket(numberOfTickets) {
-		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei((this.props.lotteryPrice * numberOfTickets).toString()) });
+		return this.web3Service.contract.methods.buyLotteryTickets(numberOfTickets).send({ from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000, value: this.web3Service.web3.utils.toWei(((this.props.lotteryPrice || 1) * numberOfTickets).toString()) });
 	}
 
 	getPanelComponent(banner) {
@@ -106,6 +124,7 @@ export class PlayerComponent extends Component {
 							register={this.register}
 							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
+							winner={this.state.winningTicket}
 						/>;
 			case 'purchase':
 				return <Purchase 
@@ -113,6 +132,8 @@ export class PlayerComponent extends Component {
 							isRegistered={this.state.isRegistered}
 							buyTicket={this.buyTicket}
 							balance={this.userDetails.balance}
+							account={this.userDetails.account}
+							winner={this.state.winningTicket}
 						/>;
 			case 'viewall':
 				return <ViewTickets account={this.userDetails.account}/>;
@@ -121,6 +142,7 @@ export class PlayerComponent extends Component {
 							register={this.register}
 							lotteryOpen={this.state.lotteryOpen}
 							isRegistered={this.state.isRegistered}
+							winner={this.state.winningTicket}
 						/>;
 		}
 	}

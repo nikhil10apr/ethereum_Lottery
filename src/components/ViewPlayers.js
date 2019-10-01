@@ -1,16 +1,33 @@
 import React, { Component, Fragment } from 'react';
 
+import Web3Service from '../ethereum/ethereum-app-utility';
+
 import './viewPlayers.scss'
 
 export default class HomeComponent extends Component {
 	constructor() {
 		super();
 
+		this.web3Service = Web3Service;
 		this.state = {
 			players: []
 		}
 		this.fetchPlayers = this.fetchPlayers.bind(this);
 		this.showPlayers = this.showPlayers.bind(this);
+
+		this.bindEvents();
+	}
+
+	bindEvents() {
+		this.web3Service.contract.events.playerRegistered()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.fetchPlayers();
+		})
+		.on('changed', function(event){
+		    // remove event from local database
+		})
+		.on('error', console.error);
 	}
 
 	showPlayers() {
@@ -19,15 +36,17 @@ export default class HomeComponent extends Component {
 			<div className='players'>
 				<h2 className='mb-5'>You have {players.length} Registered Player(s)</h2>
 				<table className='mt-4'>
-					<tbody>
-						<tr className='pb-4 d-flex justify-content-center'>
+					<thead>
+						<tr>
 							<th>Name</th>
 							<th>Phone</th>
-							<th>Address</th>
+							<th>Wallet Address</th>
 						</tr>
+					</thead>
+					<tbody>
 						{players.map(function (player) {
 							return (
-								<tr className='d-flex justify-content-center'>
+								<tr>
 									<td>{player.playerName}</td>
 									<td>{player.phoneNumber}</td>
 									<td>{player.playerAddress}</td>

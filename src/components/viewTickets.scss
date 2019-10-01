@@ -1,12 +1,24 @@
 .tickets {
-    margin: 10px auto;
     width: 700px;
-
-    table {
-        margin-left: 20%;
+    thead {
+    	background-color: #a8a8a8
     }
-
     tr {
         border-bottom: 1px dotted;
+        th, td {
+        	padding: 15px;
+        }
     }
+    tbody tr:hover {
+    	background-color: #dedede;
+    }
+}
+
+.label-width {
+    width: 120px
+}
+
+h4 {
+    display: inline-block;
+    color: red;
 }

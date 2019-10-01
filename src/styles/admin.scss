@@ -32,5 +32,16 @@
 
 .admin-panel {
 	margin-left: 350px;
-    display: inline-block;
+    display: flex;
+}
+
+.flash {
+	width: 150px;
+    position: absolute;
+    background-color: #f00;
+    border-radius: 5px;
+    right: 20px;
+    top: 20px;
+    text-align: center;
+    color: white;
 }

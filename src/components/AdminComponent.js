@@ -22,7 +22,8 @@ export class AdminComponent extends Component {
 		this.getUserDetails();
 		this.state = {
 			playersList: null,//Array
-			lotteryStatus: null
+			lotteryStatus: null,
+			showAlert: false
 		};
 		this.getLotteryStatus();
 		// this.listPlayers();
@@ -30,10 +31,30 @@ export class AdminComponent extends Component {
 		this.startLottery = this.startLottery.bind(this);
 		this.stopLottery = this.stopLottery.bind(this);
 		this.pickWinner = this.pickWinner.bind(this);
-		this.getTickets = this.getTickets.bind(this);
 		this.getUsers = this.getUsers.bind(this);
+		
+		this.bindEvents();
+	}
 
-		this.getPanelComponent = this.getPanelComponent.bind(this)
+	bindEvents() {
+		this.web3Service.contract.events.ticketSold()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.setState({
+		    	showAlert: true
+		    });
+		});
+
+		this.web3Service.contract.events.winnerIs()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.props.setWinner({
+		    	name: event.returnValues._player.playerName,
+		    	address: event.returnValues._ticket.ticketOwner,
+		    	lotteryId: event.returnValues._ticket.lotteryId,
+		    	balance: event.returnValues._balance
+		    })
+		});
 	}
 
 	getLotteryStatus() {
@@ -60,6 +81,7 @@ export class AdminComponent extends Component {
 
 	startLottery(ticketPrice) {
 		this.web3Service.contract.methods.startLottery(this.web3Service.web3.utils.toWei(ticketPrice.toString())).send({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000}, (err, resp) => {
+			if (err) return;
 			this.setState({
 				lotteryStatus: lotteryStates[1]
 			});
@@ -90,10 +112,6 @@ export class AdminComponent extends Component {
 		});
 	}
 
-	getTickets() {
-		return this.web3Service.contract.methods.getLotteryTickets().call({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000})
-	}
-
 	getUsers() {
 		return this.web3Service.contract.methods.getPlayers().call({from: this.userDetails.account, gasPrice: '10000000000000', gas: 1000000})
 	}
@@ -107,15 +125,14 @@ export class AdminComponent extends Component {
 							startLottery={this.startLottery}
 							pickWinner={this.pickWinner}
 							winner={this.props.winner}
+							account={this.userDetails.account}
 						/>
 			case 'viewallusers':
 				return <ViewPlayers 
 							getAllPlayers={this.getUsers}
 						/>
 			case 'viewalltickets':
-				return <ViewTickets 
-							getAllTickets={this.getTickets}
-						/>
+				return <ViewTickets />
 			default:
 				return <ManageLottery 
 							lotteryState={this.state.lotteryStatus}
@@ -125,6 +142,19 @@ export class AdminComponent extends Component {
 							winner={this.props.winner}
 						/>
 		}
+	}
+
+	showAlert() {
+		if(this.state.showAlert) {
+			setTimeout(() => {
+				this.setState({
+					showAlert: false
+				});
+			}, 5000);
+			return <div className='flash'>Ticket Sold</div>;
+		}
+
+		return null;
 	}
 
 	render() {
@@ -155,6 +185,9 @@ export class AdminComponent extends Component {
 					/>
 				</div>
 			</div>
+			{
+				this.showAlert()
+			}
 			<div className='col-lg pt-5 mt-5 pl-5 admin-panel'>
 				{this.getPanelComponent(this.props.selectedPanel)}
 			</div>

@@ -13,18 +13,36 @@ export default class ViewTicketComponent extends Component {
 			tickets: []
 		};
 		this.fetchTickets(props.account);
+		this.bindEvents();
+	}
+
+	bindEvents() {
+		this.web3Service.contract.events.ticketSold()
+		.on('data', (event) => {
+		    console.log(event);
+		    this.fetchTickets(this.props.account);
+		});
 	}
 
 	showTickets() {
 		const { tickets } = this.state;
 		return (
 			<div className='tickets'>
-				<h2 className='mb-5'>You have purchased {tickets.length} Ticket(s)</h2>
+				{this.props.account ? 
+					<h2 className='mb-5'>You have purchased {tickets.length} Ticket(s)</h2> : 
+					<h2 className='mb-5'>You have sold {tickets.length} Ticket(s)</h2>
+				}
 				<table className='mt-4'>
+					<thead>
+						{
+							this.props.account ? <tr><th>Ticket ID</th></tr> :
+							<tr><th>Ticket ID</th><th>Name</th><th>Wallet Address</th></tr>
+						}
+					</thead>
 					<tbody>
-						<tr className='pb-4 d-flex justify-content-center'><th>Ticket ID</th></tr>
-						{tickets.map(function (ticket) {
-							return <tr className='d-flex justify-content-center'><td>{ticket.lotteryId}</td></tr>
+						{tickets.map(ticket => {
+							return this.props.account ? <tr><td>{ticket.lotteryId}</td></tr> :
+							<tr><td>{ticket.lotteryId}</td><td>{ticket.playerName}</td><td>{ticket.playerAddress}</td></tr>
 						})}
 					</tbody>
 				</table>
@@ -33,14 +51,33 @@ export default class ViewTicketComponent extends Component {
 	}
 
 	fetchTickets(account) {
-		try {
-			this.web3Service.contract.methods.fetchMyTickets().call({ from: account, gasPrice: '10000000000000', gas: 1000000 }).then((err, resp) => {
-				if (err) return;
-				this.setState({tickets, error: false})
+		if(account) {
+			this.web3Service.contract.methods.fetchMyTickets().call({ from: account, gasPrice: '10000000000000', gas: 1000000 }, (err, resp) => {
+				if (err) {
+					console.log(error);
+					this.setState({error: true});
+					return;
+				}
+				this.setState({tickets: resp, error: false})
 			});
-		} catch(error) {
-			console.log(error)
-			this.setState({error: true})
+		} else {
+			this.web3Service.contract.methods.getLotteryTickets().call({ from: account, gasPrice: '10000000000000', gas: 1000000 }, (err, resp) => {
+				if (err) {
+					console.log(error);
+					this.setState({error: true});
+					return;
+				}
+				this.web3Service.contract.methods.getPlayers().call({ from: account, gasPrice: '10000000000000', gas: 1000000 }, (err, data) => {
+					const tickets = resp.map(function(ticket) {
+						const playerData = data.filter(function(player) {
+							return player.playerAddress === ticket.ticketOwner;
+						});
+						return {lotteryId: ticket.lotteryId, ...playerData[0]};
+					});
+					this.setState({tickets: tickets, error: false})
+				});
+				
+			});
 		}
 	}
 
@@ -51,7 +88,7 @@ export default class ViewTicketComponent extends Component {
 					this.state.error
 						? <h2>There was an error fetching your tickets</h2>
 						: this.state.tickets.length === 0
-							? <h2>No tickets purchase yet</h2>
+							? <h2>No tickets</h2>
 							: this.showTickets()
 				}
 			</div>
